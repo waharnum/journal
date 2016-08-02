@@ -9,7 +9,8 @@
       "pouchdb":"5.4.3",
       "chance":"1.0.3",
       "chartAuthoring":"https://github.com/waharnum/chartAuthoring#GPII-1584",
-      "d3":"4.1.1"
+      "d3":"4.1.1",
+      "gpii-binder": "https://github.com/GPII/gpii-binder#f4bd55bace97c5eb8fc67ed108cef46f3214aa15"
   },
   "license": "(BSD-3-Clause OR ECL-2.0)",
   "keywords": [

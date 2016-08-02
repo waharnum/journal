@@ -49,19 +49,19 @@
 }
 
 .floe-labPanel {
-    float: left;
+    // float: left;
     margin: 0.5em;
     padding: 0;
     box-sizing: border-box;
 }
 
 .floe-notesPanel {
-    width: calc(70% - 2em);
+    // width: calc(70% - 2em);
     background-color: rgb(228, 235, 234);
 }
 
 .floe-goalsPanel {
-    width: calc(30% - 2em);
+    // width: calc(30% - 2em);
     background-color: rgb(229, 231, 218);
 }
 
@@ -87,7 +87,7 @@
 
 .floe-timelinePanel {
     clear: both;
-    width: calc(100% - 3em);
+    // width: calc(100% - 3em);
 }
 
 .floe-headingContainer {
@@ -197,4 +197,25 @@ overflow:hidden;}
 
 .floe-goal-icon:before {
     content:url('/src/img/icon-goal.png');
+}
+
+.floe-lab-column {
+    min-height: 2em;
+    border: 1px #CCC dashed;
+    margin: -1px;
+}
+
+.floe-lab-leftColumn {
+    width: 70%;
+    float: left;
+}
+
+.floe-lab-rightColumn {
+    width: 30%;
+    float: left;
+}
+
+.floe-lab-bottomColumn {
+    width: 100%;
+    float: left;
 }

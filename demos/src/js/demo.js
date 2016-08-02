@@ -15,6 +15,8 @@ https://raw.githubusercontent.com/fluid-project/chartAuthoring/master/LICENSE.tx
 
     "use strict";
 
+    // fluid.setLogging(true);
+
     // PouchDB debug logging
     // PouchDB.debug.enable('*');
     // PouchDB.debug.disable("*");
@@ -125,6 +127,11 @@ https://raw.githubusercontent.com/fluid-project/chartAuthoring/master/LICENSE.tx
                 func: "floe.dashboard.lab.bindChangeUser",
                 priority: "after:fireOnContainerMarkupReady",
                 args: ["{that}"]
+            },
+            "onTemplatesReady.applyReorderer": {
+                func: "floe.dashboard.lab.applyReorderer",
+                args: "{that}.container",
+                priority: "after:fireOnContainerMarkupReady"
             }
         },
         components: {
@@ -344,6 +351,13 @@ https://raw.githubusercontent.com/fluid-project/chartAuthoring/master/LICENSE.tx
             that.goals.options.dbOptions.localName = floe.dashboard.lab.getDBName(userChangeTo);
             that.applier.change("userName", userChangeTo);
         });
+    };
+
+    floe.dashboard.lab.applyReorderer = function (reorderContainer) {
+        fluid.reorderLayout(".floec-lab-layoutContainer", {selectors: {grabHandle: ".floec-grabHandle"}});
+        // func: "fluid.reorderLayout",
+        // args: [".floec-lab-layoutContainer", {selectors: {grabHandle: ".floec-grabHandle"}}],
+        // priority: "after:fireOnContainerMarkupReady"
     };
 
     floe.dashboard.lab(".floec-labContainer");
