@@ -3,4 +3,5 @@ src/lib/chance
 src/lib/pouchdb
 src/lib/chartAuthoring
 src/lib/d3
+src/lib/handlebars
 src/lib/gpii*
