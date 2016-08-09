@@ -34,7 +34,11 @@ module.exports = function (grunt) {
                     // chartAuthoring
                     {expand: true, cwd: "./node_modules/chartAuthoring/", src: "**", dest: "./src/lib/chartAuthoring/"},
                     // d3
-                    {expand: true, cwd: "./node_modules/d3/", src: "**", dest: "./src/lib/d3/"}
+                    {expand: true, cwd: "./node_modules/d3/", src: "**", dest: "./src/lib/d3/"},
+                    // gpii-binder
+                    {expand: true, cwd: "./node_modules/gpii-binder/", src: "**", dest: "./src/lib//gpii-binder/"},
+                    // gpii-handlebars
+                    {expand: true, cwd: "./node_modules/gpii-handlebars/", src: "**", dest: "./src/lib//gpii-handlebars/"},
                 ]
             }
         }
