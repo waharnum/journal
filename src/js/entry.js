@@ -15,6 +15,49 @@ https://raw.githubusercontent.com/fluid-project/chartAuthoring/master/LICENSE.tx
 
     "use strict";
 
+    // Handlebars helpers for entry rendering
+    fluid.defaults("gpii.handlebars.helper.floe.radioButtons", {
+        gradeNames: ["gpii.handlebars.helper"],
+        helperName: "radioButtons",
+        invokers: {
+            "getHelper": {
+                "funcName": "gpii.handlebars.helper.floe.radioButtons.render",
+                args: ["{that}"]
+            }
+        }
+    });
+
+    gpii.handlebars.helper.floe.radioButtons.render = function (that) {
+        return function (context) {
+            console.log(context);
+            var rbTemplate = "<label for=\"%checkableId\">%checkableLabelText</label> <input type=\"radio\" value=\"%checkableValue\" class=\"floec-preferenceChange-helpful-radio floec-preferenceChange-helpful-%checkableValue\" id=\"%checkableId\" name=\"%checkableName\">";
+            var ret = "";
+            fluid.each(context, function (contextItem) {
+                ret = ret + new Handlebars.SafeString(rbTemplate);
+            });
+            return new Handlebars.SafeString(ret);
+        };
+
+        // "<label for=\"%checkableId\">%checkableLabelText</label> <input type=\"radio\" value=\"%checkableValue\" class=\"floec-preferenceChange-helpful-radio floec-preferenceChange-helpful-%checkableValue\" id=\"%checkableId\" name=\"%checkableName\">";
+    };
+
+    // Renderer for entries
+    fluid.defaults("floe.dashboard.entry.renderer", {
+        gradeNames: ["gpii.handlebars.renderer"],
+        members: {
+            templates: {
+                partials: {
+                    entry: "{displayed}.options.resources.stringTemplate"
+                }
+            }
+        },
+        components: {
+            radioButtons: {
+                type: "gpii.handlebars.helper.floe.radioButtons"
+            }
+        }
+    });
+
     // Mixin for creation
     fluid.defaults("floe.dashboard.entry.persisted", {
         listeners: {
@@ -29,29 +72,32 @@ https://raw.githubusercontent.com/fluid-project/chartAuthoring/master/LICENSE.tx
 
     // Mixin grade for displaying entries
     fluid.defaults("floe.dashboard.entry.displayed", {
-        gradeNames: ["floe.chartAuthoring.valueBinding"],
+        gradeNames: ["gpii.handlebars.templateAware"],
         selectors: {
-            delete: ".floec-entry-delete"
+            delete: ".floec-entry-delete",
+            initial: ""
+        },
+        components: {
+            renderer: {
+                type: "floe.dashboard.entry.renderer",
+            }
         },
         listeners: {
             "onPouchDocDeleted.removeEntryMarkup": {
                 funcName: "floe.dashboard.entry.displayed.removeEntryMarkup",
                 args: "{that}"
             },
-            "onCreate.renderEntryTemplate": {
-                funcName: "floe.dashboard.entry.displayed.renderEntryTemplate",
-                args: "{that}",
-                // Needs to beat any value binding
-                priority: "first"
-            },
             "onEntryTemplateRendered.bindDelete": {
                 funcName: "floe.dashboard.entry.displayed.bindDelete",
                 args: "{that}"
+            },
+            "onCreate.renderMarkup": {
+                func: "{that}.renderInitialMarkup"
             }
         },
         events: {
             onRemoveEntryMarkup: null,
-            onEntryTemplateRendered: null,
+            onEntryTemplateRendered: "{that}.events.onMarkupRendered",
             onBindDelete: null,
             onEntryReady: {
                 events: {
@@ -75,25 +121,27 @@ https://raw.githubusercontent.com/fluid-project/chartAuthoring/master/LICENSE.tx
             removeEntryMarkup: {
                 funcName: "floe.dashboard.entry.displayed.removeEntryMarkup",
                 args: ["{that}"]
+            },
+            renderInitialMarkup: {
+                func: "{that}.renderMarkup",
+                args: [
+                    // Selector
+                    "initial",
+                    // Template
+                    "entry",
+                    // Data
+                    "{that}.model",
+                    // Manipulator
+                    "html"
+                ]
             }
         }
-        // Must be set by implementing grade
-        // resources: {
-        //     stringTemplate: "" // fluid.stringTemplate syntax
-        //     templateValues: {} // template values for stringTemplate
-        // }
     });
 
     floe.dashboard.entry.displayed.removeEntryMarkup = function (that) {
         that.container.empty();
         that.container.remove();
         that.events.onRemoveEntryMarkup.fire();
-    };
-
-    floe.dashboard.entry.displayed.renderEntryTemplate = function (that) {
-        var entryTemplate = that.getEntryTemplate();
-        that.container.append(entryTemplate);
-        that.events.onEntryTemplateRendered.fire();
     };
 
     floe.dashboard.entry.displayed.bindDelete = function (that) {
@@ -136,14 +184,9 @@ https://raw.githubusercontent.com/fluid-project/chartAuthoring/master/LICENSE.tx
             text: ".floec-note-text",
             prompt: ".floec-note-prompt"
         },
-        bindings: {
-            created: "formattedTimes.created",
-            lastModified: "formattedTimes.lastModified",
-            text: "text",
-            prompt: "prompt"
-        },
         resources: {
-            stringTemplate: "<span class=\"floec-note-created\"></span>: <span class=\"floec-note-prompt\"></span> \"<span class=\"floec-note-text\"></span>\" <a href=\"#\" class=\"floec-entry-delete\">Delete</a>"
+            stringTemplate: "<span class=\"floec-note-created\">{{ formattedTimes.created }}</span>: <span class=\"floec-note-prompt\">{{ promt }}</span> \"<span class=\"floec-note-text\"> {{ text }}</span>\" <a href=\"#\" class=\"floec-entry-delete\">Delete</a>",
+            // stringTemplate: "<span class=\"floec-note-created\"></span>: <span class=\"floec-note-prompt\"></span> \"<span class=\"floec-note-text\"></span>\" <a href=\"#\" class=\"floec-entry-delete\">Delete</a>"
         }
     });
 
@@ -176,7 +219,7 @@ https://raw.githubusercontent.com/fluid-project/chartAuthoring/master/LICENSE.tx
             comment: "comment"
         },
         resources: {
-            stringTemplate: "<span class=\"floec-note-created\"></span> <a href=\"#\" class=\"floec-entry-delete\">Delete</a><br> <span class=\"floe-mood-icon floe-entry-icon\"></span><span class=\"floec-note-prompt\"></span> \"<span class=\"floec-note-text\"></span>\"<br><form><label for=\"%commentId\" class=\"floec-mood-commentAreaLabel\">Comment:</label> <textarea type=\"text\" class=\"floec-mood-commentArea floe-mood-commentArea\" id=\"%commentId\"></textarea></form>",
+            stringTemplate: "<span class=\"floec-note-created\">{{ formattedTimes.created }}</span> <a href=\"#\" class=\"floec-entry-delete\">Delete</a><br> <span class=\"floe-mood-icon floe-entry-icon\"></span><span class=\"floec-note-prompt\">{{ prompt }}</span> \"<span class=\"floec-note-text\">{{ text }}</span>\"<br><form><label for=\"%commentId\" class=\"floec-mood-commentAreaLabel\">Comment:</label> <textarea type=\"text\" class=\"floec-mood-commentArea floe-mood-commentArea\" id=\"%commentId\">{{ comment }}</textarea></form>",
             templateValues: {
                 commentId: {
                     expander: {
@@ -312,7 +355,7 @@ https://raw.githubusercontent.com/fluid-project/chartAuthoring/master/LICENSE.tx
             no: "No"
         },
         resources: {
-            stringTemplate: "<p><span class=\"floec-note-created\"></span> <a href=\"#\" class=\"floec-entry-delete\">Delete</a><br><span class=\"floe-preferenceChange-icon floe-entry-icon\"></span> <span class=\"floec-preferenceChange-type\"></span> changed to <span class=\"floec-preferenceChange-value\"></span></p><form>Does this preference change help me? <span class=\"floec-preferenceChange-helpful-radioButtons\">%radioButtons</span><div class=\"floec-preferenceChange-helpsWith-checkboxes\">This preference change <span class=\"floec-preferenceChange-helpsWith-value\"></span> my:<br>%checkboxes</div></form>",
+            stringTemplate: "<p><span class=\"floec-note-created\"> {{ formattedTimes.created }}</span> <a href=\"#\" class=\"floec-entry-delete\">Delete</a><br><span class=\"floe-preferenceChange-icon floe-entry-icon\"></span> <span class=\"floec-preferenceChange-type\">{{ preferenceChange.preferenceTypeLabel }}</span> changed to <span class=\"floec-preferenceChange-value\">{{ preferenceChange.preferenceValueLabel }}</span></p><form>Does this preference change help me? <span class=\"floec-preferenceChange-helpful-radioButtons\">{{radioButtons preferenceChange.helpful }}</span><div class=\"floec-preferenceChange-helpsWith-checkboxes\">This preference change <span class=\"floec-preferenceChange-helpsWith-value\"></span> my:<br>%checkboxes</div></form>",
             templateValues: {
                 radioButtons: {
                     expander: {

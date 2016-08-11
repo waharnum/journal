@@ -41,6 +41,8 @@ module.exports = function (grunt) {
                     {expand: true, cwd: "./node_modules/gpii-handlebars/", src: "**", dest: "./src/lib/gpii-handlebars/"},
                     // handlebars
                     {expand: true, cwd: "./node_modules/handlebars/", src: "**", dest: "./src/lib/handlebars/"},
+                    // pagedown
+                    {expand: true, cwd: "./node_modules/pagedown/", src: "**", dest: "./src/lib/pagedown/"},
                 ]
             }
         }
